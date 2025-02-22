@@ -1,4 +1,4 @@
-#!/sw/arch/RHEL8/EB_production/2023/software/Python/3.11.3-GCCcore-12.3.0/bin/python
+#!/usr/bin/env python3
 # Author: Arthur Hagopian
 # Contact: arth.hagopian@gmail.com
 # Date: 02/2025
@@ -10,19 +10,20 @@ import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
-# Configure logging
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    handlers=[logging.StreamHandler(sys.stdout)])
-
-# Constants
+# User's inputs
 AU_TO_EV = 27.2113838565563  # Hartree to eV conversion factor
 TIME_STEP_COLLECT_FERMI = 50
 INPUT_FILE = "output.out"
 OUTPUT_FILE = "fermi_energies.dat"
 PLOT_XLABEL = "Time (ps)"
 PLOT_YLABEL = "Fermi energy (eV)"
+
+# Configure logging
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    handlers=[logging.StreamHandler(sys.stdout)])
 
 
 def read_fermi_energies(filename, time_step_collect_fermi):

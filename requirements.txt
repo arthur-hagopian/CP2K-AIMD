@@ -1,0 +1,8 @@
+# Requirements for CP2K-AIMD Analysis Package
+
+numpy
+pandas
+matplotlib
+scipy
+ase
+
