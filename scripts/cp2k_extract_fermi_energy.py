@@ -2,8 +2,7 @@
 # Author: Arthur Hagopian
 # Contact: arth.hagopian@gmail.com
 # Date: 02/2025
-# Description: Script to extract and analyze Fermi energies from CP2K output.
-# Requirements: NumPy, Matplotlib
+# Description: Script to extract Fermi energies from CP2K output file.
 
 import logging
 import os
@@ -11,14 +10,10 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import argparse
 
-# User's inputs
+# Constants
 AU_TO_EV = 27.2113838565563  # Hartree to eV conversion factor
-TIME_STEP_COLLECT_FERMI = 50
-INPUT_FILE = "output.out"
-OUTPUT_FILE = "fermi_energies.dat"
-PLOT_XLABEL = "Time (ps)"
-PLOT_YLABEL = "Fermi energy (eV)"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -53,27 +48,42 @@ def read_fermi_energies(filename, time_step_collect_fermi):
 
 
 def save_fermi_energies(filename, time_steps, fermi_energies):
-    """Saves Fermi energies and corresponding time steps to a file."""
+    """Saves Fermi energies and corresponding time steps to a file with a header."""
     try:
-        np.savetxt(filename, np.column_stack((time_steps, fermi_energies)), fmt="%12.10f", delimiter="    ")
+        header_str = "TimeStep    FermiEnergy (eV)"
+        np.savetxt(filename,
+                   np.column_stack((time_steps, fermi_energies)),
+                   fmt=("%.2f", "%.8f"),
+                   delimiter="    ",
+                   header=header_str,
+                   comments='')  # comments='' avoids prepending '#' to the header
         logging.info(f"Fermi energies saved to: {filename}")
     except Exception as e:
         logging.error(f"Error saving Fermi energies: {e}")
 
 
-def plot_fermi_energies(time_steps, fermi_energies):
-    """Plots Fermi energies against time steps."""
-    plt.figure(figsize=(8, 6))
-    plt.plot(time_steps / 1000, fermi_energies, color="blue", linewidth=1, linestyle="-", alpha=0.5, label="Fermi Energy")
-    plt.scatter(time_steps / 1000, fermi_energies, marker="o", s=80, edgecolors="black", color="blue", alpha=1)
-    plt.xlabel(PLOT_XLABEL)
-    plt.ylabel(PLOT_YLABEL)
-    plt.legend()
-    plt.grid(True, linestyle="--", alpha=0.6)
-    plt.show()
-
-
 def main():
+    parser = argparse.ArgumentParser(
+        description="Script to extract Fermi energies from CP2K output file."
+    )
+    parser.add_argument(
+        "-ts", "--time-step-collect-fermi", type=int, default=50,
+        help="Time step interval to collect Fermi energies (default: 50)"
+    )
+    parser.add_argument(
+        "-i", "--input", type=str, default="output.out",
+        help="Input file name (default: output.out)"
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, default="fermi_energies.dat",
+        help="Output file name (default: fermi_energies.dat)"
+    )
+    args = parser.parse_args()
+
+    TIME_STEP_COLLECT_FERMI = args.time_step_collect_fermi
+    INPUT_FILE = args.input
+    OUTPUT_FILE = args.output
+
     logging.info("Starting Fermi energy extraction.")
 
     fermi_energies, steps = read_fermi_energies(INPUT_FILE, TIME_STEP_COLLECT_FERMI)
@@ -81,10 +91,13 @@ def main():
         logging.warning("No Fermi energies collected. Exiting.")
         return
 
-    time_steps = np.arange(TIME_STEP_COLLECT_FERMI, len(fermi_energies) * TIME_STEP_COLLECT_FERMI + 1, TIME_STEP_COLLECT_FERMI)
+    time_steps = np.arange(
+        TIME_STEP_COLLECT_FERMI,
+        len(fermi_energies) * TIME_STEP_COLLECT_FERMI + 1,
+        TIME_STEP_COLLECT_FERMI
+    )
 
     save_fermi_energies(OUTPUT_FILE, time_steps, fermi_energies)
-    plot_fermi_energies(time_steps, fermi_energies)
 
     logging.info("Fermi energy extraction completed.")
 
