@@ -14,9 +14,9 @@
 #   Use -h for help and to see available options.
 #
 #   Example:
-#       ./process_cube_files.py --pattern "*hartree*.cube" --show
+#       ./process_cube_files.py --pattern "*hartree*.cube" --plot
 #
-#   Additional options allow overriding:
+#   Make sure to use the correct following parameters:
 #       ELECTRODE_SURFACE, WAT_LOWER_LIMIT, WAT_UPPER_LIMIT, time-step, and the output filename.
 #
 import os
@@ -123,7 +123,7 @@ def main():
         help="Glob pattern to match cube files (default: '*hartree*.cube')"
     )
     parser.add_argument(
-        "--show", action="store_true",
+        "--plot", action="store_true",
         help="If set, display the plots interactively."
     )
     parser.add_argument(
@@ -162,7 +162,7 @@ def main():
     for i, cube_file in enumerate(cube_files, start=1):
         water_bulk_avg = process_cube_file(
             cube_file,
-            args.show,
+            args.plot,
             args.electrode_surface,
             args.wat_lower_limit,
             args.wat_upper_limit
@@ -181,7 +181,7 @@ def main():
                    np.column_stack((time_steps, water_bulk_averages)),
                    fmt=("%.2f", "%.8f"),
                    delimiter="    ",
-                   header=f"Time    WaterBulkPotential (eV) | Bulk Region : {args.wat_lower_limit} - {args.wat_upper_limit}")
+                   header=f"TimeStep    WaterBulkPotential (eV) | Bulk Region : {args.wat_lower_limit} - {args.wat_upper_limit}")
         logging.info(f"Water bulk potentials saved to: {args.output}")
     except Exception as e:
         logging.error(f"Error saving water bulk potentials: {e}")

@@ -3,6 +3,7 @@
 # Contact: arth.hagopian@gmail.com
 # Date: 02/2025
 # Description: Script to extract Fermi energies from CP2K output file.
+# Usage: Use -h for help and to see available options.
 
 import logging
 import os
