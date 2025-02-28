@@ -2,8 +2,11 @@
 # Author: Arthur Hagopian
 # Contact: arth.hagopian@gmail.com
 # Date: 02/2025
-# Description: Script to extract Fermi energies from CP2K output file.
-# Usage: Use -h for help and to see available options.
+
+"""
+Script to extract Fermi energies at every time step of an AIMD run from CP2K output file.
+The resulting data (time step vs. Fermi energy) is saved to "fermi_energies.dat"
+"""
 
 import logging
 import os

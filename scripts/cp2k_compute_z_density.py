@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Author: Arthur Hagopian
+# Contact: arth.hagopian@gmail.com
+# Date: 02/2025
+
 """
 Script to compute the average density profile of a given element from an AIMD .xyz trajectory.
 
@@ -8,12 +12,8 @@ For each frame between the specified start and stop indices, the script:
   - Extracts the z coordinates of atoms matching the specified element.
   - Bins the z coordinates into a user-defined number of bins along the z axis (using the
     simulation cell dimension in z provided by the user or a config file).
-After processing all frames, the average number of atoms per bin is converted into a density
-using one of two methods:
-  - For oxygen ("O"), the density is computed in g/cm³ using an atomic mass of 15.999 u.
-  - For any other element with a defined atomic mass (e.g. "H", "Li", "Na", "K", "Cs"), the density is computed in g/cm³.
-  - For elements with no defined atomic mass, the density is computed in arbitrary units (a.u.) as the count per volume.
-The resulting density profile (bin center vs. density) is saved to "water_density.dat" and plotted.
+After processing all frames, the average number of atoms per bin is converted into a density in g/cm³. For elements with no defined atomic mass, the density is computed in arbitrary units (a.u.) as the count per volume.
+The resulting density profile (bin center vs. density) is saved to an output file and plotted.
 If --surface-position-avg is provided, the plotted z axis will be shifted so that the given value is 0.
 """
 
@@ -26,7 +26,7 @@ def parse_xyz(filename, start, stop):
     """
     Generator function to yield frames from an .xyz file.
     Each frame is returned as a list of tuples: (element, x, y, z).
-    Only frames with indices in the range [start, stop) are yielded.
+    Only frames with indices in the range [start, stop] are yielded.
     """
     with open(filename, 'r') as f:
         frame_index = 0
@@ -151,9 +151,9 @@ def main():
     else:
         density = avg_counts / volume_bin_cm3
 
-    # Save the density profile to an output file "water_density.dat"
-    output_file = "water_density.dat"
-    header_str = f"z-axis (angstrom)    Density ({density_unit})    (Averaged over frames {args.start} to {args.stop})"
+    # Save the density profile to an output file
+    output_file = f"{args.element}_density.dat"
+    header_str = f"Z-axis (angstrom)    Density ({density_unit})    (Averaged over frames {args.start} to {args.stop})"
     data_to_save = np.column_stack((bin_centers, density))
     np.savetxt(output_file, data_to_save, fmt="%.6f", header=header_str)
     print(f"Density profile saved to {output_file}.")
@@ -178,8 +178,8 @@ def main():
     if args.plot:
         plt.show()
     else:
-        plt.savefig("water_density.png")
-        print("Plot saved as water_density.png.")
+        plt.savefig(f"{args.element}_density.png")
+        print(f"Plot saved as {args.element}_density.png.")
 
 if __name__ == "__main__":
     main()
